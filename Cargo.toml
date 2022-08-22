@@ -2,9 +2,47 @@
 name = "qt_simple_crypt_egui"
 version = "0.1.0"
 edition = "2021"
+default-run = "qt_simple_crypt_egui_bin"
+authors = ["Thomas Min <thomas.min.git@gmail.com>"]
+rust-version = "1.60"
+
+[[bin]]
+name = "qt_simple_crypt_egui_bin"
+path = "src/main.rs"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-eframe = "0.19.0"
+egui = "0.18.0"
+eframe = { version = "0.18.0", features = ["persistence"] }
 qt_simple_crypt = { path = "../qt_simple_crypt" }
+serde = { version = "1", features = [
+    "derive",
+] } # You only need this if you want app persistence
+getrandom = { version = "0.2", features = ["js"] }
+
+# native:
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
+tracing-subscriber = "0.3"
+
+# web:
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+console_error_panic_hook = "0.1.6"
+tracing-wasm = "0.2"
+
+[profile.release]
+opt-level = 2 # fast and small wasm
+
+
+[patch.crates-io]
+
+# If you want to use the bleeding edge version of egui and eframe:
+# egui = { git = "https://github.com/emilk/egui", branch = "master" }
+# eframe = { git = "https://github.com/emilk/egui", branch = "master" }
+
+# If you fork https://github.com/emilk/egui you can test with:
+# egui = { path = "../egui/egui" }
+# eframe = { path = "../egui/eframe" }
