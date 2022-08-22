@@ -54,8 +54,8 @@ impl eframe::App for TemplateApp {
         let Self {
             label,
             value,
-            plain_text,
-            cypher_text,
+            plain_text:_,
+            cypher_text:_,
         } = self;
 
         // Examples of how to create different panels and windows.
