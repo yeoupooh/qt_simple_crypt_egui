@@ -10,6 +10,7 @@ pub struct TemplateApp {
     // this how you opt-out of serialization of a member
     #[serde(skip)]
     value: f32,
+    cypher_key: String,
     plain_text: String,
     cypher_text: String,
 }
@@ -20,6 +21,7 @@ impl Default for TemplateApp {
             // Example stuff:
             label: "Hello World!".to_owned(),
             value: 2.7,
+            cypher_key: "01020304".to_owned(),
             plain_text: "plain text here".to_owned(),
             cypher_text: "cypher text here".to_owned(),
         }
@@ -54,8 +56,9 @@ impl eframe::App for TemplateApp {
         let Self {
             label,
             value,
-            plain_text:_,
-            cypher_text:_,
+            cypher_key: _,
+            plain_text: _,
+            cypher_text: _,
         } = self;
 
         // Examples of how to create different panels and windows.
@@ -87,8 +90,6 @@ impl eframe::App for TemplateApp {
                 *value += 1.0;
             }
 
-            ui.text_edit_multiline(&mut self.plain_text);
-            ui.text_edit_multiline(&mut self.cypher_text);
             if ui.button("Encrypt").clicked() {
                 let mut crypto = SimpleCrypt::new(0x1234);
                 crypto.set_compression_mode(simple_crypt::CompressionMode::CompressionNever);
@@ -101,7 +102,8 @@ impl eframe::App for TemplateApp {
             }
 
             if ui.button("Decrypt").clicked() {
-                let mut crypto = SimpleCrypt::new(0x1234);
+                let mut crypto =
+                    SimpleCrypt::new(u64::from_str_radix(&self.cypher_key, 16).unwrap());
                 crypto.set_compression_mode(simple_crypt::CompressionMode::CompressionNever);
                 crypto.set_integrity_protection_mode(
                     simple_crypt::IntegrityProtectionMode::ProtectionNone,
@@ -131,6 +133,11 @@ impl eframe::App for TemplateApp {
                 "https://github.com/emilk/eframe_template/blob/master/",
                 "Source code."
             ));
+
+            ui.text_edit_singleline(&mut self.cypher_key);
+            ui.text_edit_multiline(&mut self.plain_text);
+            ui.text_edit_multiline(&mut self.cypher_text);
+
             egui::warn_if_debug_build(ui);
         });
 
