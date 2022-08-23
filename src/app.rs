@@ -90,29 +90,6 @@ impl eframe::App for TemplateApp {
                 *value += 1.0;
             }
 
-            if ui.button("Encrypt").clicked() {
-                let mut crypto = SimpleCrypt::new(0x1234);
-                crypto.set_compression_mode(simple_crypt::CompressionMode::CompressionNever);
-                crypto.set_integrity_protection_mode(
-                    simple_crypt::IntegrityProtectionMode::ProtectionNone,
-                );
-                let cypher_text = crypto.encrypt_to_string(&self.plain_text[..]).unwrap();
-                println!("encrypted: {}", &cypher_text);
-                self.cypher_text = String::from(cypher_text);
-            }
-
-            if ui.button("Decrypt").clicked() {
-                let mut crypto =
-                    SimpleCrypt::new(u64::from_str_radix(&self.cypher_key, 16).unwrap());
-                crypto.set_compression_mode(simple_crypt::CompressionMode::CompressionNever);
-                crypto.set_integrity_protection_mode(
-                    simple_crypt::IntegrityProtectionMode::ProtectionNone,
-                );
-                let plain_text = crypto.decrypt_to_string(&self.cypher_text[..]).unwrap();
-                println!("decrypted: {}", &plain_text);
-                self.plain_text = String::from(plain_text);
-            }
-
             ui.with_layout(egui::Layout::bottom_up(egui::Align::LEFT), |ui| {
                 ui.horizontal(|ui| {
                     ui.spacing_mut().item_spacing.x = 0.0;
@@ -135,10 +112,52 @@ impl eframe::App for TemplateApp {
             ));
 
             ui.text_edit_singleline(&mut self.cypher_key);
-            ui.text_edit_multiline(&mut self.plain_text);
-            ui.text_edit_multiline(&mut self.cypher_text);
+            egui::SidePanel::left("left_panel")
+                .resizable(true)
+                // .default_width(200.0)
+                .show_inside(ui, |ui| {
+                    egui::ScrollArea::vertical().show(ui, |ui| {
+                        ui.text_edit_multiline(&mut self.plain_text);
+                    });
+                });
+            egui::SidePanel::right("right_panel")
+                .resizable(true)
+                // .default_width(200.0)
+                .show_inside(ui, |ui| {
+                    egui::ScrollArea::vertical().show(ui, |ui| {
+                        ui.text_edit_multiline(&mut self.cypher_text);
+                    });
+                });
+            egui::TopBottomPanel::bottom("bottom_panel").show_inside(ui, |ui| {
+                ui.vertical(|ui| {
+                    if ui.button("Encrypt").clicked() {
+                        let mut crypto =
+                            SimpleCrypt::new(u64::from_str_radix(&self.cypher_key, 16).unwrap());
+                        crypto
+                            .set_compression_mode(simple_crypt::CompressionMode::CompressionNever);
+                        crypto.set_integrity_protection_mode(
+                            simple_crypt::IntegrityProtectionMode::ProtectionNone,
+                        );
+                        let cypher_text = crypto.encrypt_to_string(&self.plain_text[..]).unwrap();
+                        println!("encrypted: {}", &cypher_text);
+                        self.cypher_text = String::from(cypher_text);
+                    }
 
-            egui::warn_if_debug_build(ui);
+                    if ui.button("Decrypt").clicked() {
+                        let mut crypto =
+                            SimpleCrypt::new(u64::from_str_radix(&self.cypher_key, 16).unwrap());
+                        crypto
+                            .set_compression_mode(simple_crypt::CompressionMode::CompressionNever);
+                        crypto.set_integrity_protection_mode(
+                            simple_crypt::IntegrityProtectionMode::ProtectionNone,
+                        );
+                        let plain_text = crypto.decrypt_to_string(&self.cypher_text[..]).unwrap();
+                        println!("decrypted: {}", &plain_text);
+                        self.plain_text = String::from(plain_text);
+                    }
+                    egui::warn_if_debug_build(ui);
+                });
+            });
         });
 
         if false {

@@ -30,9 +30,12 @@ cargo run
 choco install jq
 cargo install wasm-opt
 setup_web.bat
-build_web.bat
 ```
 
+## Build
+```
+build_web.bat
+```
 ## Run
 ```
 start_server.bat
