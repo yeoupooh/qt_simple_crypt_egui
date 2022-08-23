@@ -1,3 +1,4 @@
+use egui_extras::{Size, StripBuilder};
 use qt_simple_crypt::{simple_crypt::SimpleCrypt, *};
 
 /// We derive Deserialize/Serialize so we can persist app state on shutdown.
@@ -112,52 +113,68 @@ impl eframe::App for TemplateApp {
             ));
 
             ui.text_edit_singleline(&mut self.cypher_key);
-            egui::SidePanel::left("left_panel")
-                .resizable(true)
-                // .default_width(200.0)
-                .show_inside(ui, |ui| {
-                    egui::ScrollArea::vertical().show(ui, |ui| {
-                        ui.text_edit_multiline(&mut self.plain_text);
-                    });
-                });
-            egui::SidePanel::right("right_panel")
-                .resizable(true)
-                // .default_width(200.0)
-                .show_inside(ui, |ui| {
-                    egui::ScrollArea::vertical().show(ui, |ui| {
-                        ui.text_edit_multiline(&mut self.cypher_text);
-                    });
-                });
-            egui::TopBottomPanel::bottom("bottom_panel").show_inside(ui, |ui| {
-                ui.vertical(|ui| {
-                    if ui.button("Encrypt").clicked() {
-                        let mut crypto =
-                            SimpleCrypt::new(u64::from_str_radix(&self.cypher_key, 16).unwrap());
-                        crypto
-                            .set_compression_mode(simple_crypt::CompressionMode::CompressionNever);
-                        crypto.set_integrity_protection_mode(
-                            simple_crypt::IntegrityProtectionMode::ProtectionNone,
-                        );
-                        let cypher_text = crypto.encrypt_to_string(&self.plain_text[..]).unwrap();
-                        println!("encrypted: {}", &cypher_text);
-                        self.cypher_text = String::from(cypher_text);
-                    }
 
-                    if ui.button("Decrypt").clicked() {
-                        let mut crypto =
-                            SimpleCrypt::new(u64::from_str_radix(&self.cypher_key, 16).unwrap());
-                        crypto
-                            .set_compression_mode(simple_crypt::CompressionMode::CompressionNever);
-                        crypto.set_integrity_protection_mode(
-                            simple_crypt::IntegrityProtectionMode::ProtectionNone,
-                        );
-                        let plain_text = crypto.decrypt_to_string(&self.cypher_text[..]).unwrap();
-                        println!("decrypted: {}", &plain_text);
-                        self.plain_text = String::from(plain_text);
-                    }
-                    egui::warn_if_debug_build(ui);
+            StripBuilder::new(ui)
+                .size(Size::exact(100.0))
+                .size(Size::remainder())
+                .vertical(|mut strip| {
+                    strip.cell(|ui| {
+                        ui.horizontal(|ui| {
+                            if ui.button("Encrypt").clicked() {
+                                let mut crypto = SimpleCrypt::new(
+                                    u64::from_str_radix(&self.cypher_key, 16).unwrap(),
+                                );
+                                crypto.set_compression_mode(
+                                    simple_crypt::CompressionMode::CompressionNever,
+                                );
+                                crypto.set_integrity_protection_mode(
+                                    simple_crypt::IntegrityProtectionMode::ProtectionNone,
+                                );
+                                let cypher_text =
+                                    crypto.encrypt_to_string(&self.plain_text[..]).unwrap();
+                                println!("encrypted: {}", &cypher_text);
+                                self.cypher_text = String::from(cypher_text);
+                            }
+
+                            if ui.button("Decrypt").clicked() {
+                                let mut crypto = SimpleCrypt::new(
+                                    u64::from_str_radix(&self.cypher_key, 16).unwrap(),
+                                );
+                                crypto.set_compression_mode(
+                                    simple_crypt::CompressionMode::CompressionNever,
+                                );
+                                crypto.set_integrity_protection_mode(
+                                    simple_crypt::IntegrityProtectionMode::ProtectionNone,
+                                );
+                                let plain_text =
+                                    crypto.decrypt_to_string(&self.cypher_text[..]).unwrap();
+                                println!("decrypted: {}", &plain_text);
+                                self.plain_text = String::from(plain_text);
+                            }
+                            egui::warn_if_debug_build(ui);
+                        });
+                    });
+                    strip.strip(|builder| {
+                        builder.sizes(Size::remainder(), 2).horizontal(|mut strip| {
+                            strip.cell(|ui| {
+                                // left side
+                                ui.push_id("plain_text", |ui| {
+                                    egui::ScrollArea::vertical().show(ui, |ui| {
+                                        ui.text_edit_multiline(&mut self.plain_text);
+                                    });
+                                });
+                            });
+                            strip.cell(|ui| {
+                                // right side
+                                ui.push_id("cypher_text", |ui| {
+                                    egui::ScrollArea::vertical().show(ui, |ui| {
+                                        ui.text_edit_multiline(&mut self.cypher_text);
+                                    });
+                                });
+                            });
+                        });
+                    });
                 });
-            });
         });
 
         if false {

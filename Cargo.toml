@@ -23,6 +23,7 @@ serde = { version = "1", features = [
     "derive",
 ] } # You only need this if you want app persistence
 getrandom = { version = "0.2", features = ["js"] }
+egui_extras = "0.18.0"
 
 # native:
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
