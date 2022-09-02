@@ -1169,10 +1169,13 @@ dependencies = [
  "egui",
  "egui_extras",
  "getrandom",
+ "js-sys",
  "qt_simple_crypt",
  "serde",
  "tracing-subscriber",
  "tracing-wasm",
+ "wasm-bindgen",
+ "web-sys",
 ]
 
 [[package]]
