@@ -1,11 +1,16 @@
+#[cfg(all(target_arch = "wasm32", target_os = "unknown"))]
 use wasm_bindgen::prelude::*;
+#[cfg(all(target_arch = "wasm32", target_os = "unknown"))]
 use wasm_bindgen::JsCast;
+#[cfg(all(target_arch = "wasm32", target_os = "unknown"))]
 use web_sys::{ErrorEvent, MessageEvent, WebSocket};
 
+#[cfg(all(target_arch = "wasm32", target_os = "unknown"))]
 macro_rules! console_log {
     ($($t:tt)*) => (log(&format_args!($($t)*).to_string()))
 }
 
+#[cfg(all(target_arch = "wasm32", target_os = "unknown"))]
 #[wasm_bindgen]
 extern "C" {
     #[wasm_bindgen(js_namespace = console)]
@@ -206,9 +211,15 @@ impl eframe::App for TemplateApp {
     }
 }
 
+#[cfg(not(all(target_arch = "wasm32", target_os = "unknown")))]
+pub fn start_websocket() {
+    println!("not implemented yet");
+}
+
 // NOTE If uncomment below line, it will be executed when wasm module is instanciated.
 // See https://rustwasm.github.io/wasm-bindgen/reference/attributes/on-rust-exports/start.html
 // #[wasm_bindgen(start)]
+#[cfg(all(target_arch = "wasm32", target_os = "unknown"))]
 pub fn start_websocket() -> Result<(), JsValue> {
     // Connect to an echo server
     let ws = WebSocket::new("wss://echo.websocket.events")?;
